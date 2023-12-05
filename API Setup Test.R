@@ -10,11 +10,11 @@ NYTIMES_KEY <- "tGHvuXnYKOxwJYoDyjkrcD8kJP4CYQ4D" ###need individual access
 
 movie <- "Movies" ## section_name
 review = "Review" ##type_of_content
-begin_date <- "20230101"
-end_date <- "20230903"
+begin_date <- "20210101"
+end_date <- "20211231"
 
-baseurl <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?fq=section_name%3A",movie,
-                  "AND type_of_material%3A",review, "&sort=newest&page=0",
+baseurl <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?fq=section_name:",movie,
+                  "AND type_of_material:",review, "&sort=newest&page=0",
                   "&begin_date=",begin_date,"&end_date=",end_date,
                   "&facet_filter=true&api-key=",NYTIMES_KEY, sep="")
 
@@ -27,12 +27,17 @@ pages_2023 <- vector("list",length=maxPages)
 
 for(i in 0:maxPages){
   nytSearch <- fromJSON(paste0(baseurl, "&page=", i), flatten = TRUE) %>% data.frame() 
-  pages_2014[[i+1]] <- nytSearch 
+  pages_2023[[i+1]] <- nytSearch 
   Sys.sleep(12) 
 }
 
-Movie2023 <- rbind_pages(pages_2014)
-save(Movie2023,file="Movie2023.Rdata") ##need to repull
+##2023H1 page=83
+
+Movie2021 <- rbind_pages(pages_2023)
+save(Movie2021,file="Movie2021.Rdata") ##need to repull
+
+table(Movie2023_H2)
+
 
 
 
