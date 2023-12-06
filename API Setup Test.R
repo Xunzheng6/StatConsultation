@@ -1,3 +1,10 @@
+install.packages("tidyverse")
+install.packages("jsonlite")
+install.packages("lubridate")
+install.packages("tidyr")
+install.packages("ggplot2")
+install.packages("stringr")
+
 library(tidyverse)
 library(jsonlite)
 library(lubridate)
@@ -6,12 +13,13 @@ library(ggplot2)
 library(stringr)
 
 
-NYTIMES_KEY <- "tGHvuXnYKOxwJYoDyjkrcD8kJP4CYQ4D" ###need individual access
+NYTIMES_KEY <- "b7AEYMJYY111XfaykaXUmGlAM0CCzyzm" ###need individual access
+
 
 movie <- "Movies" ## section_name
 review = "Review" ##type_of_content
 begin_date <- "20230101"
-end_date <- "20230903"
+end_date <- "20230103"
 
 baseurl <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?fq=section_name%3A",movie,
                   "AND type_of_material%3A",review, "&sort=newest&page=0",
