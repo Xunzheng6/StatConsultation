@@ -12,10 +12,25 @@ merged_unique <- merged %>% distinct(response.docs.snippet, .keep_all = TRUE)
 #only 2013 unique!
 
 # to know what type of movie, we can find this information in the response.docs.keywords list
+typelist <- merged_unique$response.docs.keywords
+merged_unique <- merged_unique %>% mutate(type=0)
+for (i in 1:nrow(merged_unique)) {
+merged_unique$type[i]=typelist[[c(i,2)]][1]
+}
+table(merged_unique$type)
 
-test2 <- merged_unique1$response.docs.keywords
+check <- merged_unique %>% filter (merged_unique$type!="Movies" & merged_unique$type!="Documentary Films and Programs") 
 
-test2 <- merged_unique$response.docs.keywords
+
+merged_unique <- merged_unique %>% mutate(type=0)
+for (i in 1:nrow(merged_unique)) {
+  typetable=as.data.frame(merged_unique$response.docs.keywords[i])
+  merged_unique$type[i]=typetable$value[typetable$name=="subject"]
+}
+
+
+sorted_typelist <- typelist[order(sapply(typelist,'[[',1))]
+sorted_li
 #there is an inconsistency with where the subject is in the list, so I need a better way to extract that information
-test2[[c(3,2)]][2]
+test2[[c(1,2)]][1]
 
