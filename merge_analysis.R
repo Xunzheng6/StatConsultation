@@ -18,15 +18,16 @@ for (i in 1:nrow(merged_unique)) {
 merged_unique$type[i]=typelist[[c(i,2)]][1]
 }
 table(merged_unique$type)
-
 check <- merged_unique %>% filter (merged_unique$type!="Movies" & merged_unique$type!="Documentary Films and Programs") 
+#THIS METHOD LEAVES 98 UNCLASSIFIED. WE CAN DO BETTER
 
 
 merged_unique <- merged_unique %>% mutate(type=0)
 for (i in 1:nrow(merged_unique)) {
   typetable=as.data.frame(merged_unique$response.docs.keywords[i])
-  merged_unique$type[i]=typetable$value[typetable$name=="subject"]
+  merged_unique$type[i]=ifelse(any(typetable$value=="Documentary Films and Programs"),"Documentary Films and Programs",ifelse(any(typetable$value=="Movies"),"Movies",NA))
 }
+check2 <- merged_unique %>% filter (is.na(merged_unique$type))
 
 
 sorted_typelist <- typelist[order(sapply(typelist,'[[',1))]
