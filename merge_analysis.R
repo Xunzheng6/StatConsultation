@@ -9,7 +9,7 @@ merged <- merged_all %>%
 # we have 2229 movies, now keep only unique ones
 #merged_unique <- unique(merged)
 merged_unique <- merged %>% distinct(response.docs.snippet, .keep_all = TRUE)
-#only 2013 unique!
+#only 2103 unique!
 
 # to know what type of movie, we can find this information in the response.docs.keywords list
 typelist <- merged_unique$response.docs.keywords
@@ -30,8 +30,4 @@ for (i in 1:nrow(merged_unique)) {
 check2 <- merged_unique %>% filter (is.na(merged_unique$type))
 
 
-sorted_typelist <- typelist[order(sapply(typelist,'[[',1))]
-sorted_li
-#there is an inconsistency with where the subject is in the list, so I need a better way to extract that information
-test2[[c(1,2)]][1]
 
