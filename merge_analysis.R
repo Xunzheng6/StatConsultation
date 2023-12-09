@@ -29,6 +29,7 @@ merged_all <- rbind(Movie2018H1, Movie2018H2,
 merged <- merged_all %>%
   filter(str_detect(response.docs.web_url, "/movies"))
 # we have 4268 movies, now keep only unique ones
+
 #merged_unique <- unique(merged)
 merged_unique <- merged %>% distinct(response.docs.snippet, .keep_all = TRUE)
 #only 4142 unique!
@@ -104,24 +105,50 @@ covid2020p7 <- covid2020p7 %>% select(-response.docs.slideshow_credits)
 covid2020p8 <- load("Covid2020P8.Rdata")
 covid2020p8 <- CovidFile
 covid2020p8 <- covid2020p8 %>% select(-response.docs.slideshow_credits)
+covid2020p9 <- load("Covid2020P9.Rdata")
+covid2020p9 <- CovidFile
+covid2020p9 <- covid2020p9 %>% select(-response.docs.slideshow_credits)
+covid2020p10 <- load("Covid2020P10.Rdata")
+covid2020p10 <- CovidFile
+#covid2020p10 <- covid2020p10 %>% select(-response.docs.slideshow_credits)
+covid2020p11 <- load("Covid2020P11.Rdata")
+covid2020p11 <- CovidFile
+#covid2020p11 <- covid2020p11 %>% select(-response.docs.slideshow_credits)
+covid2020p12 <- load("Covid2020P12.Rdata")
+covid2020p12 <- CovidFile
+#covid2020p12 <- covid2020p12 %>% select(-response.docs.slideshow_credits)
+covid2020p13 <- load("Covid2020P13.Rdata")
+covid2020p13 <- CovidFile
+#covid2020p13 <- covid2020p13 %>% select(-response.docs.slideshow_credits)
 
 covid <- rbind(covid2020p1,covid2020p2,
                covid2020p3,covid2020p4,
                covid2020p5,covid2020p6,
-               covid2020p7,covid2020p8) #13114
-covid_unique <- covid %>% distinct(response.docs.snippet, .keep_all = TRUE) #10415 unique
+               covid2020p7,covid2020p8,
+               covid2020p9,covid2020p10,
+               covid2020p11,covid2020p12,
+               covid2020p13) #13114
+covid_unique <- covid %>% distinct(response.docs.snippet, .keep_all = TRUE) #18437 unique
 
 trend2 <- covid_unique %>% mutate(month = month(response.docs.pub_date), 
                                   year = year(response.docs.pub_date))
-covid_unique$monthyear <- as.yearmon(paste(trend2$year, trend2$month), "%Y %m")
+trend2$monthyear <- as.yearmon(paste(trend2$year, trend2$month), "%Y %m")
 
 # trend covid articles
-unique <- covid_unique %>% select(response.docs.pub_date,month, year, monthyear, response.docs.news_desk, type, author, criticpick)
-trend2 <- unique %>% group_by(monthyear) %>% mutate(n_month=n()) %>% ungroup() %>% group_by(year) %>% 
+trend2 <- trend2 %>% select(response.docs.pub_date,month, year, monthyear, response.docs.news_desk)
+trend2 <- trend2 %>% group_by(monthyear) %>% mutate(n_month=n()) %>% ungroup() %>% group_by(year) %>% 
   mutate(n_year=n()) %>% ungroup() %>% group_by(monthyear) %>% arrange(monthyear)
 trend2$monthyear_c <- as.character(trend2$monthyear)
 
-
+trend2 %>%
+  arrange(monthyear) %>% 
+  group_by(monthyear, year) %>% 
+  summarise(n_month=n()) %>% 
+  ggplot() +
+  aes(x = monthyear, y = n_month) +
+  geom_line()+
+  scale_color_gradient() +
+  theme_minimal() 
 
 
 
