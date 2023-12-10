@@ -1,5 +1,6 @@
 library(tidyverse)
 library(lubridate)
+library(stringr)
 library(zoo)
 
 # appending the data
@@ -34,25 +35,32 @@ merged <- merged_all %>%
 merged_unique <- merged %>% distinct(response.docs.snippet, .keep_all = TRUE)
 #only 4142 unique!
 
-# to know what type of movie, we can find this information in the response.docs.keywords list
-typelist <- merged_unique$response.docs.keywords
-merged_unique <- merged_unique %>% mutate(type=0)
-for (i in 1:nrow(merged_unique)) {
-merged_unique$type[i]=typelist[[c(i,2)]][1]
-}
-table(merged_unique$type)
-check <- merged_unique %>% filter (merged_unique$type!="Movies" & merged_unique$type!="Documentary Films and Programs") 
-#THIS METHOD LEAVES 98 UNCLASSIFIED. WE CAN DO BETTER
+# # to know what type of movie, we can find this information in the response.docs.keywords list
+# typelist <- merged_unique$response.docs.keywords
+# merged_unique <- merged_unique %>% mutate(type=0)
+# for (i in 1:nrow(merged_unique)) {
+# merged_unique$type[i]=typelist[[c(i,2)]][1]
+# }
+# table(merged_unique$type)
+# check <- merged_unique %>% filter (merged_unique$type!="Movies" & merged_unique$type!="Documentary Films and Programs") 
+# #THIS METHOD LEAVES 98 UNCLASSIFIED. WE CAN DO BETTER
 
 
-merged_unique <- merged_unique %>% mutate(type=0)
+merged_unique <- merged_unique %>% mutate(type=0,
+                                          movie_name=0)
 for (i in 1:nrow(merged_unique)) {
   typetable=as.data.frame(merged_unique$response.docs.keywords[i])
   merged_unique$type[i]=ifelse(any(typetable$value=="Documentary Films and Programs"),"Documentary Films and Programs",
                                ifelse(any(typetable$value=="Movies"),"Movies",
                                       ifelse(any(typetable$value=="Animated Films"),"Animated Films",NA)))
+  merged_unique$movie_name[i] <- typetable[typetable$name=="creative_works", "value"][1]
 }
 check2 <- merged_unique %>% filter (is.na(merged_unique$type))
+
+
+a <- " anything goes here, STR1 GET_ME STR2, anything goes here"
+merged_unique$movie_name2 <- str_match(merged_unique$response.docs.web_url, "/movies/\\s*(.*?)\\s*-review")[,2]
+
 
 # Add author name (removing "By")
 stopwords = c("By")
@@ -149,6 +157,7 @@ trend2 %>%
   geom_line()+
   scale_color_gradient() +
   theme_minimal() 
+
 
 
 
