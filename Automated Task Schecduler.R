@@ -3,3 +3,4 @@ library(miniUI)
 install.packages("miniUI")
 
 taskschedulerAddin()
+getwd()
