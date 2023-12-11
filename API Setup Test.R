@@ -44,7 +44,9 @@ CovidFile <- rbind_pages(pages_2023)
 save(CovidFile,file="Covid2020P8.Rdata") ##Save data as separate file, need to change data name
 
 
-
+install.packages("gitcreds")
+library(gitcreds)
+gitcreds_set()
 
 
 
