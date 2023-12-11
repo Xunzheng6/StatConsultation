@@ -7,14 +7,14 @@ library(stringr)
 
 
 NYTIMES_KEY <- "hCt4EAjrvjsBswpEqfukn2lLVCkpCgCG" ###need individual access
-## YCQXcIE3FWEolFlu6ouiSaGUwpo5iG1d  ## 1.1
-## tGHvuXnYKOxwJYoDyjkrcD8kJP4CYQ4D  ## 1
-## hCt4EAjrvjsBswpEqfukn2lLVCkpCgCG  ## 198 + 199
+## YCQXcIE3FWEolFlu6ouiSaGUwpo5iG1d  
+## tGHvuXnYKOxwJYoDyjkrcD8kJP4CYQ4D  
+## hCt4EAjrvjsBswpEqfukn2lLVCkpCgCG  201 + 2 + 138
 
 movie <- "Movies" ## section_name
 review = "Review" ##type_of_content
-begin_date <- "20200720"
-end_date <- "20200830"
+begin_date <- "20210128"
+end_date <- "20210228"
 covid <- "covid" ## query
 
 baseur1 <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?fq=section_name:",movie,
@@ -41,12 +41,7 @@ for(i in 0:maxPages){
 
 
 CovidFile <- rbind_pages(pages_2023)
-save(CovidFile,file="Covid2020P8.Rdata") ##Save data as separate file, need to change data name
-
-
-install.packages("gitcreds")
-library(gitcreds)
-gitcreds_set()
+save(CovidFile,file=paste0(end_date,"Covid2021P2.Rdata")) ##Save data as separate file, need to change data name
 
 
 
