@@ -34,10 +34,6 @@ for(i in 0:maxPages){
 }
 
 MovieFile <- rbind_pages(pages_2023)
-<<<<<<< HEAD
-save(MovieFile,file=paste0(end_date,"Movie.Rdata"))
-=======
 save(MovieFile,file=paste0(end_date2,".Rdata"))
->>>>>>> f4ac4d8f0657af8b22f588ba180961b55d4ebd14
 
 
