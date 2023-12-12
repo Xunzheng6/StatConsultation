@@ -32,3 +32,4 @@ for(i in 0:maxPages){
 
 CovidFile <- rbind_pages(pages_2023)
 save(CovidFile,file=paste0(end_date2,"Covid.Rdata")) ##Save data as separate file, need to change data name
+

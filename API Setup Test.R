@@ -6,16 +6,16 @@ library(ggplot2)
 library(stringr)
 
 
-NYTIMES_KEY <- "YCQXcIE3FWEolFlu6ouiSaGUwpo5iG1d" ###need individual access
-## YCQXcIE3FWEolFlu6ouiSaGUwpo5iG1d 200 + 
-## tGHvuXnYKOxwJYoDyjkrcD8kJP4CYQ4D 45 + 200 + 205
-## hCt4EAjrvjsBswpEqfukn2lLVCkpCgCG 10 + 200 + 200
-## RF0Jo5G7GNH5GoIwgMXWGzn9fhyMP8xs 205
+NYTIMES_KEY <- "RF0Jo5G7GNH5GoIwgMXWGzn9fhyMP8xs" ###need individual access
+## YCQXcIE3FWEolFlu6ouiSaGUwpo5iG1d  
+## tGHvuXnYKOxwJYoDyjkrcD8kJP4CYQ4D  
+## hCt4EAjrvjsBswpEqfukn2lLVCkpCgCG  
+## RF0Jo5G7GNH5GoIwgMXWGzn9fhyMP8xs
 
 movie <- "Movies" ## section_name
 review = "Review" ##type_of_content
-begin_date <- "20231011"
-end_date <- "20231210"
+begin_date <- "20230323"
+end_date <- "20231010"  
 covid <- "covid" ## query
 
 baseur1 <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?fq=section_name:",movie,
@@ -43,8 +43,6 @@ for(i in 0:maxPages){
 
 CovidFile <- rbind_pages(pages_2023)
 save(CovidFile,file=paste0(end_date,"Covid.Rdata")) ##Save data as separate file, need to change data name
-
-
 
 
 
