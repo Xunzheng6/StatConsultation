@@ -6,7 +6,7 @@ library(ggplot2)
 library(stringr)
 
 
-NYTIMES_KEY <- "YCQXcIE3FWEolFlu6ouiSaGUwpo5iG1d" ###need individual access
+NYTIMES_KEYc <- "YCQXcIE3FWEolFlu6ouiSaGUwpo5iG1d" ###need individual access
 
 begin_date1 = as.POSIXlt(Sys.time()-86400*7)
 begin_date2 = paste0(substr(begin_date1,0,4),substr(begin_date1,6,7),substr(begin_date1,9,10))
@@ -16,7 +16,7 @@ covid <- "covid" ## query
 
 baseurl2 <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?q=",covid,
                    "&sort=newest","&begin_date=",begin_date2,"&end_date=",end_date2,
-                   "&facet_filter=true&api-key=",NYTIMES_KEY)
+                   "&facet_filter=true&api-key=",NYTIMES_KEYc)
 
 initialQuery <- fromJSON(baseurl2)
 maxPages <- round((initialQuery$response$meta$hits[1] / 10)-1) 

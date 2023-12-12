@@ -6,7 +6,7 @@ library(ggplot2)
 library(stringr)
 
 
-NYTIMES_KEY <- "hCt4EAjrvjsBswpEqfukn2lLVCkpCgCG" ###need individual access
+NYTIMES_KEYm <- "hCt4EAjrvjsBswpEqfukn2lLVCkpCgCG" ###need individual access
 
 movie = "Movies" ## section_name
 review = "Review" ##type_of_content
@@ -18,7 +18,7 @@ end_date2 = paste0(substr(end_date1,0,4),substr(end_date1,6,7),substr(end_date1,
 baseur1 <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?fq=section_name:",movie,
                   "AND type_of_material:",review, "&sort=newest",
                   "&begin_date=",begin_date2,"&end_date=",end_date2,
-                  "&facet_filter=true&api-key=",NYTIMES_KEY)
+                  "&facet_filter=true&api-key=",NYTIMES_KEYm)
 
 ##https://api.nytimes.com/svc/search/v2/articlesearch.json?fq=section_name:"Movies" AND type_of_material:"Review"&sort=newest&page=0&api-key{NYTIMES_KEY}
 
