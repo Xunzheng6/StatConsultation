@@ -51,11 +51,37 @@ merged_unique <- merged_unique %>%
           year = year(response.docs.pub_date))
 merged_unique$monthyear <- as.yearmon(paste(merged_unique$year, merged_unique$month), "%Y %m")
 
+
+merged_unique <- merged_unique %>% mutate(type=0,
+                                          movie_name=0)
+for (i in 1:nrow(merged_unique)) {
+  typetable=as.data.frame(merged_unique$response.docs.keywords[i])
+  merged_unique$type[i]=ifelse(any(typetable$value=="Documentary Films and Programs"),"Documentary Films and Programs",
+                               ifelse(any(typetable$value=="Movies"),"Movies",
+                                      ifelse(any(typetable$value=="Animated Films"),"Animated Films",NA)))
+  merged_unique$movie_name1[i] <- typetable[typetable$name=="creative_works", "value"][1]
+}
+check2 <- merged_unique %>% filter (is.na(merged_unique$type))
+
+merged_unique$movie_name2 <- str_match(merged_unique$response.docs.web_url, "/movies/\\s*(.*?)\\s*-review")[,2]
+merged_unique$movie_name <- ifelse(is.na(merged_unique$movie_name1),merged_unique$movie_name2,merged_unique$movie_name1)
+check3 <- merged_unique %>% filter(is.na(movie_name)) #only 3; can live without
+
+# remove (Movie) ; replace dashes with spaces ; remove white space ; lower case all for movie names
+merged_unique$movie_name <-str_replace(merged_unique$movie_name, " \\s*\\([^\\)]+\\)", "")
+merged_unique$movie_name <-str_replace_all(merged_unique$movie_name,'-',' ')
+merged_unique$movie_name <- trimws(merged_unique$movie_name)
+merged_unique$movie_name <- tolower(merged_unique$movie_name)
+
 # trend number of movie reviews
-unique <- merged_unique %>% select(response.docs.pub_date,month, year, monthyear, response.docs.news_desk, type, author, criticpick)
-trend1 <- unique %>% group_by(monthyear) %>% mutate(n_month=n()) %>% ungroup() %>% group_by(year) %>% 
+unique <- merged_unique %>% select(response.docs.pub_date,month, year, monthyear, 
+                                   response.docs.news_desk, type, author, criticpick,
+                                   movie_name, movie_name1, movie_name2)
+unique <- unique %>% group_by(monthyear) %>% mutate(n_month=n()) %>% ungroup() %>% group_by(year) %>% 
   mutate(n_year=n()) %>% ungroup() %>% group_by(monthyear) %>% arrange(monthyear)
 trend1$monthyear_c <- as.character(trend1$monthyear)
+
+
 
 esquisse::esquisser()
 
@@ -69,6 +95,7 @@ trend1 %>%
   scale_color_gradient() +
   theme_minimal() 
 
+###------------------------------------------------------------------------------------------------------------###
 # trend number of articles over time
 covid2020p1 <- load("Covid2020P1.Rdata")
 covid2020p1 <- CovidFile
