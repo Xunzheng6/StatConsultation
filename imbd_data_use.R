@@ -6,14 +6,13 @@ library(splitstackshape)
 library(stringi)
 library(tm)
 
-dat <- read_tsv("/Users/dujamichael/Downloads/title.basics.tsv.gz") %>% 
-  filter(startYear>2016)
-         
-dat1 <- dat %>% filter(titleType=="movie"|titleType=="tvMovie")
+titles <- title.basics %>% 
+  filter(startYear>2016,
+         titleType=="movie"|titleType=="tvMovie")
 
 
-reviews <- read_tsv("/Users/dujamichael/Downloads/title.ratings.tsv.gz")
-joined <- left_join(dat1,reviews, by="tconst") %>% 
+ratings <- title.ratings
+joined <- left_join(titles,ratings, by="tconst") %>% 
   rename(movie_name = primaryTitle,
          release_year=startYear) %>% 
   mutate(release_year=as.numeric(release_year))
@@ -33,10 +32,11 @@ withratings <- left_join(unique, joined, by="movie_name")
 withratings <- withratings %>% filter(release_year <= year) %>% 
   group_by(movie_name) %>% mutate(n_matches=n(),
                                   unclear=ifelse(n_matches>1,1,0))
-table(withratings$n_matches) # a good percentage is matched.
+table(withratings$n_matches, useNA = "always") # an ok percentage is matched uniquely.
 
 # get the genres:
 gens <- unique(word(withratings$genres, sep=","))
+length(gens)
 
 # make them into indicator columns:
 withratings$Documentary <- grepl("Documentary", withratings$genres)
@@ -61,9 +61,48 @@ withratings$Adult <- grepl("Adult", withratings$genres)
 fuzzy <- withratings %>% filter(n_matches>1) %>% select(author,movie_name, 
                                                         originalTitle,n_matches, averageRating,numVotes,
                                                         year,release_year)
+table(withratings$n_matches)
+# 3232 out of 4142 were uniquely matched to a review, roughly 80%. Not bad.
 
-table(withratings$n_matches). 
-# 1651 out of 2039 were uniquely matched to a review, roughly 80%. Not bad.
+matched <- withratings %>% filter(n_matches==1)
+table(matched$Music)
+table(matched$Musical)
+table(matched$Family)
+table(matched$Romance)
+table(matched$Fantasy)
+table(matched$Thriller)
+table(matched$Mystery)
+table(matched$Horror)
+table(matched$Biography)
+table(matched$Adventure)
+table(matched$Action)
+table(matched$Crime)
+table(matched$Comedy)
+table(matched$Animation)
+table(matched$Drama)
+table(matched$Documentary)
+
+
 
 # we will drop those who were matched fuzzily in the respective analyses.
+esquisse::esquisser()
+
+
+#### PLOTS
+matched %>% group_by(author) %>% mutate(mean_rating=mean(averageRating),
+                                        mean_Documentary=mean(Documentary),
+                                        mean_Drama=mean(Drama),
+                                        mean_Animation=mean(Animation),
+                                        mean_Drama=mean(Drama),
+                                        mean_Comedy=mean(Comedy),
+                                        mean_Crime=mean(Crime),
+                                        mean_Action=mean(Action),
+                                        mean_Adventure=mean(Adventure),
+                                        mean_Drama=mean(Drama),
+                                        mean_Biography=mean(Biography),
+                                        mean_Horror=mean(Horror),
+                                        mean_Drama=mean(Drama),
+                                        mean_Drama=mean(Drama),
+                                        mean_Drama=mean(Drama),
+                                        
 

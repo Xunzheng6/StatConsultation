@@ -3,21 +3,28 @@ library(lubridate)
 library(stringr)
 library(zoo)
 
+setwd("~/Desktop/A3SR/STATS CONSULTING/StatConsultation/")
+
 # appending the data
 Movie2018H1 <- load("Movie2018H1.Rdata")
 Movie2018H1 <- MovieFile
 Movie2018H2 <- load("Movie2018H2.Rdata")
 Movie2018H2 <- MovieFile
-
 Movie2019H1 <- load("Movie2019H1.Rdata")
 Movie2019H1 <- MovieFile
 Movie2019H2 <- load("Movie2019H2.Rdata")
 Movie2019H2 <- MovieFile
-
-Movie2020H1 <- load("Movie2020H1.Rdata")
+Movie2020H1 <- load("~/Desktop/A3SR/STATS CONSULTING/StatConsultation/Movie2020H1.Rdata")
 Movie2020H1 <- MovieFile
-Movie2020H2 <- load("Movie2020H2.Rdata")
+Movie2020H2 <- load("~/Desktop/A3SR/STATS CONSULTING/StatConsultation/Movie2020H2.Rdata")
 Movie2020H2 <- MovieFile
+load("Movie2021H1.Rdata")
+load("Movie2021H2.Rdata")
+load("Movie2022H1.Rdata")
+load("Movie2022H2.Rdata")
+load("Movie2023H1.Rdata")
+load("Movie2023H2.Rdata")
+
 
 merged_all <- rbind(Movie2018H1, Movie2018H2, 
                     Movie2019H1, Movie2019H2,
@@ -72,6 +79,10 @@ merged_unique$movie_name <-str_replace(merged_unique$movie_name, " \\s*\\([^\\)]
 merged_unique$movie_name <-str_replace_all(merged_unique$movie_name,'-',' ')
 merged_unique$movie_name <- trimws(merged_unique$movie_name)
 merged_unique$movie_name <- tolower(merged_unique$movie_name)
+# replace & with "and", remove ":"
+merged_unique$movie_name <-str_replace_all(merged_unique$movie_name,':','')
+merged_unique$movie_name <-str_replace_all(merged_unique$movie_name,'&','and')
+
 
 # trend number of movie reviews
 unique <- merged_unique %>% select(response.docs.pub_date,month, year, monthyear, 
@@ -79,21 +90,7 @@ unique <- merged_unique %>% select(response.docs.pub_date,month, year, monthyear
                                    movie_name, movie_name1, movie_name2)
 unique <- unique %>% group_by(monthyear) %>% mutate(n_month=n()) %>% ungroup() %>% group_by(year) %>% 
   mutate(n_year=n()) %>% ungroup() %>% group_by(monthyear) %>% arrange(monthyear)
-trend1$monthyear_c <- as.character(trend1$monthyear)
 
-
-
-esquisse::esquisser()
-
-trend1 %>%
-  arrange(monthyear) %>% 
-  group_by(monthyear, year) %>% 
-  summarise(n_month=n()) %>% 
-  ggplot() +
-  aes(x = monthyear, y = n_month) +
-  geom_line()+
-  scale_color_gradient() +
-  theme_minimal() 
 
 ###------------------------------------------------------------------------------------------------------------###
 # trend number of articles over time
@@ -130,6 +127,46 @@ covid2020p12 <- CovidFile
 covid2020p13 <- load("Covid2020P13.Rdata")
 covid2020p13 <- CovidFile
 #covid2020p13 <- covid2020p13 %>% select(-response.docs.slideshow_credits)
+covid2020p14 <- load("Covid2020P14.Rdata")
+covid2020p14 <- CovidFile
+
+load("20210228Covid2021P2.Rdata")
+covid2021p1 <- CovidFile
+load("20210413Covid.Rdata")
+covid2021p2 <- CovidFile
+load("20210525Covid.Rdata")
+covid2021p2 <- covid2021p2 %>% select(-response.docs.slideshow_credits)
+covid2021p3 <- CovidFile
+load("20210720Covid.Rdata")
+covid2021p4 <- CovidFile
+covid2021p4 <- covid2021p4 %>% select(-response.docs.slideshow_credits)
+load("20210910Covid.Rdata")
+covid2021p5 <- CovidFile
+load("20211105Covid1.Rdata")
+covid2021p6 <- CovidFile
+load("20211105Covid2.Rdata")
+covid2021p7 <- CovidFile
+load("20211130Covid.Rdata")
+covid2021p8 <- CovidFile
+load("20220120Covid1.Rdata")
+covid2022p1 <- CovidFile
+load("20220120Covid2.Rdata")
+covid2022p2 <- CovidFile
+load("20220325Covid.Rdata")
+covid2022p3 <- CovidFile
+load("20220620Covid.Rdata")
+covid2022p4 <- CovidFile
+load("20221031Covid.Rdata")
+covid2022p5 <- CovidFile
+load("20230320Covid.Rdata")
+covid2023p1 <- CovidFile
+load("20231010Covid.Rdata")
+covid2023p2 <- CovidFile
+load("20231210Covid.Rdata")
+covid2023p3 <- CovidFile
+load("20231210Covid2.Rdata")
+covid2023p4 <- CovidFile
+
 
 covid <- rbind(covid2020p1,covid2020p2,
                covid2020p3,covid2020p4,
@@ -137,8 +174,17 @@ covid <- rbind(covid2020p1,covid2020p2,
                covid2020p7,covid2020p8,
                covid2020p9,covid2020p10,
                covid2020p11,covid2020p12,
-               covid2020p13) #13114
-covid_unique <- covid %>% distinct(response.docs.snippet, .keep_all = TRUE) #18437 unique
+               covid2020p13, covid2020p14,
+               covid2021p1,covid2021p2,
+               covid2021p3,covid2021p4,
+               covid2021p5,covid2021p6,
+               covid2021p7,covid2021p8,
+               covid2022p1,covid2022p2,
+               covid2022p3,covid2022p4,
+               covid2022p5,
+               covid2023p1,covid2023p2,
+               covid2023p3,covid2023p4) #13114
+covid_unique <- covid %>% distinct(response.docs.snippet, .keep_all = TRUE) #49401 of which 44003 are unique 
 
 trend2 <- covid_unique %>% mutate(month = month(response.docs.pub_date), 
                                   year = year(response.docs.pub_date))
@@ -150,6 +196,30 @@ trend2 <- trend2 %>% group_by(monthyear) %>% mutate(n_month=n()) %>% ungroup() %
   mutate(n_year=n()) %>% ungroup() %>% group_by(monthyear) %>% arrange(monthyear)
 trend2$monthyear_c <- as.character(trend2$monthyear)
 
+tt <- trend2 %>% filter(n_month>2000)
+
+
+
+##REMOVE THE FOLLOWING COVID DATA DAYS:
+# 2021-01-27
+# 2023-03-22
+
+
+
+##### PLOTS
+
+#review trends
+unique %>%
+  arrange(monthyear) %>% 
+  group_by(monthyear, year) %>% 
+  summarise(n_month=n()) %>% 
+  ggplot() +
+  aes(x = monthyear, y = n_month) +
+  geom_line()+
+  scale_color_gradient() +
+  theme_minimal() 
+
+#covid trends
 trend2 %>%
   arrange(monthyear) %>% 
   group_by(monthyear, year) %>% 
@@ -159,6 +229,7 @@ trend2 %>%
   geom_line()+
   scale_color_gradient() +
   theme_minimal() 
+
 
 
 
