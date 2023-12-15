@@ -15,7 +15,7 @@ begin_date2 = paste0(substr(begin_date1,0,4),substr(begin_date1,6,7),substr(begi
 end_date1 = as.POSIXlt(Sys.time()-86400)
 end_date2 = paste0(substr(end_date1,0,4),substr(end_date1,6,7),substr(end_date1,9,10))
 
-baseur1 <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?fq=section_name:",movie,
+baseurl1 <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?fq=section_name:",movie,
                   "AND type_of_material:",review, "&sort=newest",
                   "&begin_date=",begin_date2,"&end_date=",end_date2,
                   "&facet_filter=true&api-key=",NYTIMES_KEYm)
@@ -34,6 +34,6 @@ for(i in 0:maxPages){
 }
 
 MovieFile <- rbind_pages(pages_2023)
-save(MovieFile,file=paste0(end_date2,".Rdata"))
+save(MovieFile,file=paste0(end_date2,"Movie.Rdata"))
 
 
