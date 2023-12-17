@@ -12,6 +12,7 @@ As the movie landscape continue to evolve in the recent years, The New York Time
   - Are Critics Picks movies more likely to also receive higher ratings by the public?  
 
 ## Inital Exploration
+As this is a school project, we have explored several ideas before settling on the project idea presented in the Introduction section. Initially, we would like to work with social media API
 
 ## Data Collection
 
