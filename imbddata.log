@@ -24,3 +24,81 @@ dbl (2): averageRating, numVotes
 
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+trying URL 'https://datasets.imdbws.com/title.basics.tsv.gz'
+Content type 'binary/octet-stream' length 181835898 bytes (173.4 MB)
+==================================================
+downloaded 173.4 MB
+
+Rows: 10401992 Columns: 9
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr (5): tconst, titleType, primaryTitle, originalTitle, genres
+dbl (4): isAdult, startYear, endYear, runtimeMinutes
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+trying URL 'https://datasets.imdbws.com/title.ratings.tsv.gz'
+Content type 'binary/octet-stream' length 6933590 bytes (6.6 MB)
+==================================================
+downloaded 6.6 MB
+
+Rows: 1379121 Columns: 3
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr (1): tconst
+dbl (2): averageRating, numVotes
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+trying URL 'https://datasets.imdbws.com/title.basics.tsv.gz'
+Content type 'binary/octet-stream' length 181874818 bytes (173.4 MB)
+==================================================
+downloaded 173.4 MB
+
+Rows: 10404083 Columns: 9
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr (5): tconst, titleType, primaryTitle, originalTitle, genres
+dbl (4): isAdult, startYear, endYear, runtimeMinutes
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+trying URL 'https://datasets.imdbws.com/title.ratings.tsv.gz'
+Content type 'binary/octet-stream' length 6935086 bytes (6.6 MB)
+==================================================
+downloaded 6.6 MB
+
+Rows: 1379364 Columns: 3
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr (1): tconst
+dbl (2): averageRating, numVotes
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+trying URL 'https://datasets.imdbws.com/title.basics.tsv.gz'
+Content type 'binary/octet-stream' length 181919715 bytes (173.5 MB)
+==================================================
+downloaded 173.5 MB
+
+Rows: 10406399 Columns: 9
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr (5): tconst, titleType, primaryTitle, originalTitle, genres
+dbl (4): isAdult, startYear, endYear, runtimeMinutes
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+trying URL 'https://datasets.imdbws.com/title.ratings.tsv.gz'
+Content type 'binary/octet-stream' length 6938964 bytes (6.6 MB)
+==================================================
+downloaded 6.6 MB
+
+Rows: 1380168 Columns: 3
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr (1): tconst
+dbl (2): averageRating, numVotes
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.

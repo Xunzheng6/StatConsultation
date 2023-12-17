@@ -1,0 +1,17 @@
+---
+title: "Statisitical Consulting Final Write Up"
+output: pdf_document
+author: Xunqing Zheng & Duja Michael
+---
+
+## Introduction
+
+## Inital Exploration
+
+## Data Collection
+
+## Data Cleaning
+
+## Analysis
+
+## Conclusion
