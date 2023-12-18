@@ -5,8 +5,14 @@ author: Xunqing Zheng & Duja Michael
 ---
 
 ## Introduction
+As the movie landscape continue to evolve in the recent years, The New York Times movie reviews continue to offer insightful commentary, providing audiences with a nuanced perspective on the ever-changing and dynamic world of cinema. In order to get a deeper understanding of how NYTimes is selecting what movies to review, if there is a pattern on their selection, we decided to analysis all the movie reviews published on NYTimes Movie Reviews. In particular, we are trying to understand:   
+  - Is any particular genre more likely to be reviewed by NYTimes?  
+  - Would particular authors specialized in particular genre?  
+  - What’s the average rating of the movies reviewed each authors?  
+  - Are Critics Picks movies more likely to also receive higher ratings by the public?  
 
 ## Inital Exploration
+As this is a school project, we have explored several ideas before settling on the project idea presented in the Introduction section. Initially, we would like to work with social media API
 
 ## Data Collection
 
