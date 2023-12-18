@@ -102,3 +102,11 @@ dbl (2): averageRating, numVotes
 
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+trying URL 'https://datasets.imdbws.com/title.basics.tsv.gz'
+Error in download.file(url, tmp) : 
+  cannot open URL 'https://datasets.imdbws.com/title.basics.tsv.gz'
+Calls: imdbTSVfiles -> download.file
+In addition: Warning message:
+In download.file(url, tmp) :
+  URL 'https://datasets.imdbws.com/title.basics.tsv.gz': status was 'Couldn't resolve host name'
+Execution halted
