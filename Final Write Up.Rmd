@@ -33,9 +33,9 @@ As the movie landscape continues to evolve, The New York Times movie reviews con
   - Are "Critic's Picks" more likely to also receive higher ratings by the public?  
 
 ## Inital Exploration
-They journey to land on this topic was a windy one. Initially, we wanted to work with a social media API where we would grab all the comments on a specific movie most and run sentiment analysis to get an idea about how the movie is received by the public. We also had a detour in our thinking in mid-October and wanted to shift our project to check the state of democracy in the USA by downloading the comments on all posts by the POTUS and Bernie Sanders accounts to see the prevalence of the calls for a ceasefire in Gaza knowing that those comments went on deaf ears. All those ideas proved to be unfit for the scope of this project due to the difficulty in extracting comments on a certain posts in the APIs of the social media platforms we wanted to use.
+They journey to land on this topic was a windy one. Initially, we wanted to work with a social media API where we would grab all the comments on a specific movie and run sentiment analysis to get an idea about how the movie is received by the public. We also had a detour in our thinking in mid-October and wanted to shift our project to check the state of democracy in the USA by downloading the comments on all posts by the POTUS and Bernie Sanders accounts to see the prevalence of the calls for a ceasefire in Gaza knowing that those comments went on deaf ears. All those ideas proved to be unfit for the scope of this project due to the difficulty in extracting comments on a certain post in the APIs of the social media platforms we wanted to use. All the available services to do that were paid ones.
 
-The final pivot we did was to go back to our initial idea of movie reviews and use the NYTimes' API. While working with the NYTimes API, we also attempted to pull Covid related articles but decided not to use the data in our final analysis.
+The final pivot we did was to go back to our initial idea of movie reviews and use the NYTimes' API. While working with the NYTimes API, we also attempted to pull Covid related articles but decided not to use that data in our final analysis.
 
 ## Difficulties with the NYTimes API
 The NYTimes API presents a steep learning curve on how it operates. A good understanding of the documentation is required to navigate and extract the desired information efficiently. Throughout the process, we have encountered many difficulties, such as function deprecation, code errors, data consistency, etc.  
@@ -198,7 +198,6 @@ merged_unique <- merged %>% distinct(response.docs.snippet, .keep_all = TRUE)
 4. Create columns with variables of interest including review author, critic's pick, review date, movie type, and movie name:
 
 ```{r}
-
 # Add author name (removing "By")
 stopwords = c("By")
 merged_unique$author <-gsub("By","",as.character(merged_unique$response.docs.byline.original))
@@ -223,15 +222,18 @@ for (i in 1:nrow(merged_unique)) {
   merged_unique$movie_name1[i] <- typetable[typetable$name=="creative_works", "value"][1]
 }
 
-table(merged_unique$type, useNA = "always") #12 movies have no type information
+#table(merged_unique$type, useNA = "always") #12 movies have no type information
 
 #Extract movie name from URL
-merged_unique$movie_name2 <- str_match(merged_unique$response.docs.web_url, "/movies/\\s*(.*?)\\s*-review")[,2]
+merged_unique$movie_name2 <- str_match(merged_unique$response.docs.web_url, 
+                                       "/movies/\\s*(.*?)\\s*-review")[,2]
 
 #Use name from URL if the information is not there in the response.docs.keywords list
-merged_unique$movie_name <- ifelse(is.na(merged_unique$movie_name1),merged_unique$movie_name2,merged_unique$movie_name1)
+merged_unique$movie_name <- ifelse(is.na(merged_unique$movie_name1),
+                                   merged_unique$movie_name2,merged_unique$movie_name1)
 
-check3 <- merged_unique %>% filter(is.na(movie_name)) #only 3 have unidentifiable name from either source. We proceed without them.
+check3 <- merged_unique %>% filter(is.na(movie_name)) 
+#only 3 have unidentifiable name from either source. We proceed without them.
 ```
 
 5. Clean up the movie names sufficiently so that they can be effectively merged with the IMDb data
@@ -315,8 +317,8 @@ matched <- withratings %>% filter(n_matches==1)
 
 ```{r}
 # get the genres:
-gens <- unique(word(matched$genres, sep=","))
-length(gens) #19 genres represented
+genre <- unique(word(matched$genres, sep=","))
+length(genre) #19 genres represented
 
 # make them into indicator columns:
 matched$Documentary <- grepl("Documentary", matched$genres)
@@ -365,8 +367,8 @@ Next, we turn the the distribution of the movies reviewed across genres and crea
 ```{r}
 
 #distribution of reviewed movies across genres
-gens <- gens[-14]
-gencounts <- c(sum(matched$Documentary==1), sum(matched$Drama==1),
+genre <- genre[-14]
+counts <- c(sum(matched$Documentary==1), sum(matched$Drama==1),
                sum(matched$Comedy==1), sum(matched$Crime==1),
                sum(matched$Action==1), sum(matched$Adventure==1),
                sum(matched$Biography==1), sum(matched$Horror==1),
@@ -375,11 +377,11 @@ gencounts <- c(sum(matched$Documentary==1), sum(matched$Drama==1),
                sum(matched$Fantasy==1), sum(matched$Family==1),
                sum(matched$Musical==1), sum(matched$History==1),
                sum(matched$Music==1), sum(matched$Romance==1))
-genre_table=as.data.frame(cbind(gens,gencounts))
-genre_table$gencounts <- as.numeric(genre_table$gencounts)
-genre_table <- genre_table[order(genre_table$gencounts, decreasing = TRUE), ]
+genre_table=as.data.frame(cbind(genre,counts))
+genre_table$counts <- as.numeric(genre_table$counts)
+genre_table <- genre_table[order(genre_table$counts, decreasing = TRUE), ]
 
-p <- ggplot(genre_table, aes(x = reorder(gens, +gencounts), y = gencounts)) + 
+p <- ggplot(genre_table, aes(x = reorder(genre, +counts), y = counts)) + 
   geom_bar(stat="identity", color='red',fill="#112446") +
   coord_flip() 
 p
@@ -397,75 +399,82 @@ auth_rate <- na.omit(auth_rate)
 
 p <- ggplot(auth_rate, aes(x = reorder(author, +n_reviews), y = n_reviews)) + 
   geom_bar(stat="identity", color='red',fill="#112446") +
-  coord_flip() 
+  coord_flip() +
+  theme(axis.text.x = element_text(color = "black", size = 6),
+        axis.text.y = element_text(color = "black", size = 6))
 p
 ```
 
+Glenn Kenny and Ben Kanigsberg are the two most prolific movie reviewers at the NYTimes during our analysis period. It is important to note that there is a good number of reviewers who did less than 10 reviews each. Those reviewers are excluded from further analyses and the rest of the plots for clarity.
 
 
 We turn next to the question of whether authors/reviewers tend to specialize in a genre or not. We do that by calculating the percentage of movies by author that are tagged as a specific genre. The plot below show the most frequently reviewed genre by author.
 
-```{r}
-
+```{r, message=FALSE}
 #genre per author
 genres_author <- matched %>% group_by(author) %>%summarise(n=n(),
-                                                  perc_pick=mean(criticpick),
-                                                  perc_rating <- mean(averageRating, na.rm=TRUE),
-                                                  perc_Documentary=mean(Documentary),
-                                                  perc_Drama=mean(Drama),
-                                                  perc_Animation=mean(Animation),
-                                                  perc_Comedy=mean(Comedy),
-                                                  perc_Crime=mean(Crime),
-                                                  perc_Action=mean(Action),
-                                                  perc_Adventure=mean(Adventure),
-                                                  perc_Biography=mean(Biography),
-                                                  perc_Horror=mean(Horror),
-                                                  perc_Mystery=mean(Mystery),
-                                                  perc_Thriller=mean(Thriller),
-                                                  perc_SciFi=mean(SciFi),
-                                                  perc_Fantasy=mean(Fantasy),
-                                                  perc_Family=mean(Family),
-                                                  perc_Musical=mean(Musical),
-                                                  perc_History=mean(History),
-                                                  perc_Music=mean(Music),
-                                                  perc_Romance=mean(Romance)) %>% 
+                                                  p_pick=mean(criticpick),
+                                                  p_rating <- mean(averageRating, na.rm=TRUE),
+                                                  p_Documentary=mean(Documentary),
+                                                  p_Drama=mean(Drama),
+                                                  p_Animation=mean(Animation),
+                                                  p_Comedy=mean(Comedy),
+                                                  p_Crime=mean(Crime),
+                                                  p_Action=mean(Action),
+                                                  p_Adventure=mean(Adventure),
+                                                  p_Biography=mean(Biography),
+                                                  p_Horror=mean(Horror),
+                                                  p_Mystery=mean(Mystery),
+                                                  p_Thriller=mean(Thriller),
+                                                  p_SciFi=mean(SciFi),
+                                                  p_Fantasy=mean(Fantasy),
+                                                  p_Family=mean(Family),
+                                                  p_Musical=mean(Musical),
+                                                  p_History=mean(History),
+                                                  p_Music=mean(Music),
+                                                  p_Romance=mean(Romance)) %>% 
   filter(n>9)
 na.omit(genres_author)
 
 genre_dist <- genres_author %>% 
-  mutate(maxx = pmax(perc_Documentary, perc_Drama,perc_Comedy, perc_Crime,
-                    perc_Action,perc_Adventure,perc_Biography,perc_Horror,
-                    perc_Mystery,perc_Animation,perc_Thriller,perc_SciFi  ,   
-                    perc_Fantasy,perc_Family,perc_Musical ,perc_History,
-                    perc_Music,perc_Romance))
+  mutate(maxx = pmax(p_Documentary, p_Drama,p_Comedy, p_Crime,
+                    p_Action,p_Adventure,p_Biography,p_Horror,
+                    p_Mystery,p_Animation,p_Thriller,p_SciFi  ,   
+                    p_Fantasy,p_Family,p_Musical ,p_History,
+                    p_Music,p_Romance))
 
 genre_max <- genres_author %>%
-  dplyr::select(perc_Documentary, perc_Drama,perc_Comedy, perc_Crime,
-         perc_Action,perc_Adventure,perc_Biography,perc_Horror,
-         perc_Mystery,perc_Animation,perc_Thriller,perc_SciFi  ,   
-         perc_Fantasy,perc_Family,perc_Musical ,perc_History,
-         perc_Music,perc_Romance) %>% 
+  dplyr::select(p_Documentary, p_Drama,p_Comedy, p_Crime,
+         p_Action,p_Adventure,p_Biography,p_Horror,
+         p_Mystery,p_Animation,p_Thriller,p_SciFi  ,   
+         p_Fantasy,p_Family,p_Musical ,p_History,
+         p_Music,p_Romance) %>% 
   rowwise %>%
-  mutate(Max = names(.)[which.max(c(perc_Documentary, perc_Drama,perc_Comedy, perc_Crime,
-                                     perc_Action,perc_Adventure,perc_Biography,perc_Horror,
-                                     perc_Mystery,perc_Animation,perc_Thriller,perc_SciFi  ,   
-                                     perc_Fantasy,perc_Family,perc_Musical ,perc_History,
-                                     perc_Music,perc_Romance))]) %>%  ungroup
+  mutate(Max = names(.)[which.max(c(p_Documentary, p_Drama,p_Comedy, p_Crime,
+                                     p_Action,p_Adventure,p_Biography,p_Horror,
+                                     p_Mystery,p_Animation,p_Thriller,p_SciFi  ,   
+                                     p_Fantasy,p_Family,p_Musical ,p_History,
+                                     p_Music,p_Romance))]) %>%  ungroup
 author_n_max <- cbind(genres_author$author,genre_max,genre_dist$maxx)
 
+colnames(author_n_max)[20:21] <- c("most_common_genre","percentage")
+colnames(author_n_max)[1] <- "Author"
 ggplot(author_n_max) +
   aes(
-    x = `genres_author$author`,
-    y = Max,
-    fill = `genre_dist$maxx`
+    x = Author,
+    y = most_common_genre,
+    fill = percentage
   ) +
   geom_tile() +
   scale_fill_gradient() +
   coord_flip() +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.text.x = element_text(color = "black", size = 6),
+        axis.text.y = element_text(color = "black", size = 6))
+  
 ```
 
-The result that we see is expected, since the genre reviewed most by the NYTimes is drama. However, we do see that some reviewers specializing in horror, documentary, and comedy reviews. In the plot above, specialization indicates that 40% or more of the reviews they wrote belonged to that specific genre. The color gradient indicates that percentage, with the lighter color indicating more specialization.
+The result that we see is expected, since the genre reviewed most by the NYTimes is drama. However, we do see some reviewers specializing in horror, documentary, and comedy reviews. In the plot above, specialization is defined the most common genre the author writes about (it also means that in all of these cases, more than 40% of the reviews they wrote belonged to that specific genre). The color gradient indicates the percentage of reviews they wrote that belonged to that most common genre, with the lighter color indicating more specialization.
 
 Next, we turn to the distribution of IMDb ratings for the movies that each author reviewed, visualized as a ridgeplot.
 
@@ -485,7 +494,9 @@ ridge <- matched %>% group_by(author) %>% mutate(n=n()) %>% filter(n>5)
 ggplot(ridge, aes(x = averageRating, y = author, fill = author)) +
   geom_density_ridges() +
   theme_ridges() + 
-  theme(legend.position = "none")
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(color = "black", size = 6),
+        axis.text.y = element_text(color = "black", size = 6))
 ```
 
 Finally, we turn to the question of whether movies chosen as "critic's pick" tend to be rating more generously on IMDb. The plot below shows the ratings distribution by critic's pick status.
@@ -496,8 +507,7 @@ matched %>% group_by(criticpick) %>% summarise(avg_imdb_rating=mean(averageRatin
 matched$criticpick_f=as.factor(matched$criticpick)
 ggplot(matched, aes(x = averageRating, y = criticpick_f, fill = criticpick_f)) +
   geom_density_ridges() +
-  theme_ridges() + 
-  theme(legend.position = "none")
+  theme_ridges() 
 ```
 
 The plot shows that indeed, the distribution of IMDb ratings for the critic's pick movies is to the right of that of the movies that did not receive that title.
