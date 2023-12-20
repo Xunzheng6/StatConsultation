@@ -4,17 +4,34 @@ output: pdf_document
 author: Xunqing Zheng & Duja Michael
 ---
 
+# Extracting and Analyzing the New York Times Movie Reviews Data
+
 ## Introduction
-As the movie landscape continue to evolve in the recent years, The New York Times movie reviews continue to offer insightful commentary, providing audiences with a nuanced perspective on the ever-changing and dynamic world of cinema. In order to get a deeper understanding of how NYTimes is selecting what movies to review, if there is a pattern on their selection, we decided to analysis all the movie reviews published on NYTimes Movie Reviews. In particular, we are trying to understand:   
+As the movie landscape continues to evolve, The New York Times movie reviews continue to offer insightful commentary, providing audiences with a nuanced perspective on the ever-changing and dynamic world of cinema. In order to get a deeper understanding of how the NYTimes is selecting what movies to review, what type of movie each of the staff critics review, and if there are patterns selecting which movies to be reviewed by whom, we decided to analyze all the movie reviews published in NYTimes from Januray 2018 until November 2023. In particular, we are trying to understand:  
+  - Is there a pattern or a time-trend in the number of movies that the NYTimes reviews during this period?  
   - Is any particular genre more likely to be reviewed by NYTimes?  
-  - Would particular authors specialized in particular genre?  
+  - Do particular reviewers/authors specialize in particular genres?  
   - What’s the average rating of the movies reviewed each authors?  
-  - Are Critics Picks movies more likely to also receive higher ratings by the public?  
+  - Are "Critic's Picks" more likely to also receive higher ratings by the public?  
 
 ## Inital Exploration
-As this is a school project, we have explored several ideas before settling on the project idea presented in the Introduction section. Initially, we would like to work with social media API
+They journey to land on this topic was a windy one. Initially, we wanted to work with a social media API where we would grab all the comments on a specific movie most and run sentiment analysis to get an idea about how the movie is received by the public. We also had a detour in our thinking in mid-October and wanted to shift our project to check the state of democracy in the USA by downloading the comments on all posts by the POTUS and Bernie Sanders accounts to see the prevalence of the calls for a ceasefire in Gaza knowing that those comments went on deaf ears. All those ideas proved to be unfit for the scope of this project due to the difficulty in extracting comments on a certain posts in the APIs of the social media platforms we wanted to use.
+
+The final pivot we did was to go back to our initial idea of movie reviews and use the NYTimes' API.
+
+## Difficulties with the NYTimes API
+### Xunqing --> talk about the deprecated api, call limits, the parameters, etc
+
+### Quality, consistency, and insufficient information:
+Another issue we faced with the NYTimes API was the lack of information and consistency in the data provided. For instance, data on the movie name and movie type are provided in a list of lists. Not all reviews had these two pieces of information, and in the cases where the information is provided, it is not arranged in a way that lends itself to systematic extraction. For movie names, we had to supplement the list data with information from the URL in cases where the list was missing that information. For the type of movie, the only categorizations that were consistently provided were whether the movie is a film, a documentary, or an animated film. No consistent information is provided for the genre of the movie.
+
+From the NYTimes API data, we ended up extracting and using movie name, movie type, whether or not it was a critic's pick, the author of the review, and the date of publishing the review.
+
+## Supplementing the NYTimes data with IMDb information
+Besides its paid API, IMDb has free datasets that are available for use for non-commercial purposes. We utilize this data to supplement the NYTimes information. In particular, this data adds information on the genre of the movie, the IMDb average rating, and the number of ratings.
 
 ## Data Collection
+### Xunqing --> talk about how we got the info from the NYT api and how we saved it for later analysis; Also talk about the chunk of code you created to get the IMDb data directly from the web
 
 ## Data Cleaning
 
