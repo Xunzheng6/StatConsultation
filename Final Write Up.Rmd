@@ -124,7 +124,7 @@ imdbTSVfiles("title.ratings")
 ```
 
 ### Automation of the data pipeline
-In an effort to access all the data in a more sustainable way for long term purpose, we also tried to automate the data pull with cronR for Mac and taskscheduleR for Windows. Unfortunately, both attempts were not successful for NYTimes due to issues with our laptops' security system. We did successfully automate the IMDb data pull as we save the data to R directly instead of as a separate file to our local disk. 
+In an effort to access all the data in a more sustainable way for long term purpose, we also tried to automate the data pull with cronR for Mac and taskscheduleR for Windows. Unfortunately, both attempts were not successful for NYTimes due to issues with our laptops' security systems. We did successfully automate the IMDb data pull as we save the data to R directly instead of as a separate file to our local disk. 
 ```{r}
 #This code chunk is for display only. We don't want to actually schedule any task.
 
