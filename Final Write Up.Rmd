@@ -4,6 +4,8 @@ output: pdf_document
 author: Xunqing Zheng & Duja Michael
 ---
 
+
+# Extracting and Analyzing the New York Times Movie Reviews Data
 ```{r, message=FALSE}
 library(tidyverse)
 library(lubridate)
@@ -17,10 +19,9 @@ library(tm)
 library(ggplot2)
 library(jsonlite)
 library(cronR)
+library(ggridges)
 #library(taskscheduleR)
 ```
-
-# Extracting and Analyzing the New York Times Movie Reviews Data
 
 ## Introduction
 As the movie landscape continues to evolve, The New York Times movie reviews continue to offer insightful commentary, providing audiences with a nuanced perspective on the ever-changing and dynamic world of cinema. In order to get a deeper understanding of how the NYTimes is selecting what movies to review, what type of movie each of the staff critics review, and if there are patterns selecting which movies to be reviewed by whom, we decided to analyze all the movie reviews published in NYTimes from Januray 2018 until November 2023. In particular, we are trying to understand:  
@@ -58,7 +59,7 @@ From the NYTimes API data, we ended up extracting and using movie name, movie ty
 
 ### NYTimes
 In order to access the NYTimes API, we first created a developer account with NYTimes to access a API key. The code below sets a stage for all the necessary parameters. The dates are coded automatically referring to past 7 days based on system time for any ongoing, continuous data pull. We hard coded the dates for any massive hitorical data pull. 
-```{r, message=FALSE}
+```{r, eval=FALSE}
 
 NYTIMES_KEYm <- "hCt4EAjrvjsBswpEqfukn2lLVCkpCgCG" ###need individual access
 movie = "Movies" ## section_name
@@ -71,7 +72,7 @@ end_date2 = paste0(substr(end_date1,0,4),substr(end_date1,6,7),substr(end_date1,
 ```
 
 After coding all the parameters, we used paste0() to combine all of them to form a URL to access the API data.
-```{r}
+```{r, eval=FALSE}
 baseurl1 <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?fq=section_name:",movie,
                   "AND type_of_material:",review, "&sort=newest",
                   "&begin_date=",begin_date2,"&end_date=",end_date2,
@@ -80,7 +81,7 @@ baseurl1
 ```
 
 With this base url, we were able to access the data from the NYTimes API, divided the total article number by 10 to get the maximum pages we need to pull within the time frame we set. Then, we created an empty list vector to store all the data from the API. Since each time we can only access 1 page or 10 articles, a for loop is used to hit the API and store data over pages. The for loop was the most time consuming part of the code. After multiple tests to minimized potential error, we had to change the wait time between each API hit from our initial 5 seconds to 12 second. 
-```{r, message=FALSE}
+```{r, eval=FALSE}
 initialQuery <- fromJSON(baseurl1)
 maxPages <- round((initialQuery$response$meta$hits[1] / 10)-1) 
 
@@ -94,7 +95,7 @@ for(i in 0:maxPages){
 ```
 
 Lastly, we store the data as .Rdata file for future analysis. 
-```{r, message=FALSE}
+```{r, eval=FALSE}
 MovieFile <- rbind_pages(pages_2023)
 save(MovieFile,file=paste0(end_date2,"Movie.Rdata"))
 ```
@@ -103,8 +104,7 @@ Throughout the process, we learned that accessing recent data is a lot easier th
 
 ### IMDb
 Besides its paid API, IMDb has free datasets that are available for use for non-commercial purposes. We utilize this data to supplement the NYTimes information. In particular, this data adds information on the genre of the movie, the IMDb average rating, and the number of ratings. The code below basically creates a function to go to the IMDb file download page, get the TSV files, then store the dataset into R Global Enviroment for analysis.
-```{r}
-
+```{r, , message=FALSE}
 imdbTSVfiles <- function(fileName){
   url <- paste0("https://datasets.imdbws.com/",fileName,".tsv.gz")
   tmp <- tempfile()
@@ -125,23 +125,24 @@ imdbTSVfiles("title.ratings")
 
 ### Automation of the data pipeline
 In an effort to access all the data in a more sustainable way for long term purpose, we also tried to automate the data pull with cronR for Mac and taskscheduleR for Windows. Unfortunately, both attempts were not successful for NYTimes due to issues with our laptops' security systems. We did successfully automate the IMDb data pull as we save the data to R directly instead of as a separate file to our local disk. 
-```{r}
-#This code chunk is for display only. We don't want to actually schedule any task.
+```{r, eval=FALSE}
+# This code chunk is for display only. We don't want to actually schedule any task.
 
-##mac
-#cmd1 = cron_rscript("~/StatConsultation/MovieAPI.R")
-#cron_add(cmd1, "daily", at="6AM")
+#mac
+cmd1 = cron_rscript("~/StatConsultation/MovieAPI.R")
+cron_add(cmd1, "daily", at="6AM")
 
-#cmd2 = cron_rscript("~/StatConsultation/imbddata.R")
-#cron_add(cmd1, "daily", at="3PM")
+cmd2 = cron_rscript("~/StatConsultation/imbddata.R")
+cron_add(cmd1, "daily", at="3PM")
 
-##Window
-#taskschedulerAddin()
+#Window
+taskschedulerAddin()
 ```
 
+## Data manipulation
 
-### NYTimes data manipulation steps
-1. All the files that were extracted from the API and saved as .R files were loaded and appended using the following code:
+### NYTimes data manipulation
+1. All the files that were extracted from the API and saved as .Rdata files were loaded and appended using the following code:
 
 
 ```{r}
@@ -310,7 +311,7 @@ matched <- withratings %>% filter(n_matches==1)
 
 3232 out of 4142 movies were uniquely matched with the IMDb data. A random sub-sample of those were manually checked, and they were all true matches. Our match rate is roughly 80%, which is not bad.
 
-### Transforming genre data to a usable format
+### Transforming the genre data to a usable format
 
 ```{r}
 # get the genres:
@@ -341,6 +342,8 @@ matched$Romance <- grepl("Romance", matched$genres)
 
 ## Analysis and Visualizations
 
+To visualize the time trends in the number of reviews published by the NYTimes during the period of analysis, we use the following code and inspect the resulting plot.
+
 ```{r}
 #review trends
 api_unique %>%
@@ -354,6 +357,10 @@ api_unique %>%
   theme_minimal() 
 
 ```
+
+The plot shows strong seasonal trends, but there is no discernible longer term pattern.
+
+Next, we turn the the distribution of the movies reviewed across genres and create the visualization below to summarize the data.
 
 ```{r}
 
@@ -378,6 +385,9 @@ p <- ggplot(genre_table, aes(x = reorder(gens, +gencounts), y = gencounts)) +
 p
 ```
 
+The genre most reviewed is drama, with over 1600 movie reviews, followed by documentary (~870) and then comedy (~760). Musicals are reviewed at the lowest frequency - only 30 musicals were reviewed during the period of analysis.
+
+As for the number of reviews per author, the information is summarized in the barchart below.
 ```{r}
 #number of reviews per author
 auth_rate <- matched %>% group_by(author) %>% 
@@ -390,6 +400,10 @@ p <- ggplot(auth_rate, aes(x = reorder(author, +n_reviews), y = n_reviews)) +
   coord_flip() 
 p
 ```
+
+
+
+We turn next to the question of whether authors/reviewers tend to specialize in a genre or not. We do that by calculating the percentage of movies by author that are tagged as a specific genre. The plot below show the most frequently reviewed genre by author.
 
 ```{r}
 
@@ -451,6 +465,10 @@ ggplot(author_n_max) +
   theme_minimal()
 ```
 
+The result that we see is expected, since the genre reviewed most by the NYTimes is drama. However, we do see that some reviewers specializing in horror, documentary, and comedy reviews. In the plot above, specialization indicates that 40% or more of the reviews they wrote belonged to that specific genre. The color gradient indicates that percentage, with the lighter color indicating more specialization.
+
+Next, we turn to the distribution of IMDb ratings for the movies that each author reviewed, visualized as a ridgeplot.
+
 ```{r}
 #average imdb rating per author (those with more than 10 reviews)
 auth_rate <- matched %>% group_by(author) %>% 
@@ -458,18 +476,19 @@ auth_rate <- matched %>% group_by(author) %>%
             n_reviews=n()) %>% 
   filter(n_reviews>9)
 auth_rate <- na.omit(auth_rate)
-p <- ggplot(auth_rate, aes(x = reorder(author, +mean_imdb_rating), y = mean_imdb_rating)) + 
-  geom_bar(stat="identity", color='red',fill="#112446") +
-  coord_flip() 
-p
+# p <- ggplot(auth_rate, aes(x = reorder(author, +mean_imdb_rating), y = mean_imdb_rating)) + 
+#   geom_bar(stat="identity", color='red',fill="#112446") +
+#   coord_flip() 
+# p
 
-library(ggridges)
 ridge <- matched %>% group_by(author) %>% mutate(n=n()) %>% filter(n>5)
 ggplot(ridge, aes(x = averageRating, y = author, fill = author)) +
   geom_density_ridges() +
   theme_ridges() + 
   theme(legend.position = "none")
 ```
+
+Finally, we turn to the question of whether movies chosen as "critic's pick" tend to be rating more generously on IMDb. The plot below shows the ratings distribution by critic's pick status.
 
 ```{r}
 #critics pick ratings vs non critics pick
@@ -480,5 +499,8 @@ ggplot(matched, aes(x = averageRating, y = criticpick_f, fill = criticpick_f)) +
   theme_ridges() + 
   theme(legend.position = "none")
 ```
+
+The plot shows that indeed, the distribution of IMDb ratings for the critic's pick movies is to the right of that of the movies that did not receive that title.
+
 
 ## Conclusion
