@@ -4,13 +4,29 @@ output: pdf_document
 author: Xunqing Zheng & Duja Michael
 ---
 
+```{r, message=FALSE}
+library(tidyverse)
+library(lubridate)
+library(stringr)
+library(zoo)
+library(readr)
+library(tidyverse)
+library(splitstackshape)
+library(stringi)
+library(tm)
+library(ggplot2)
+library(jsonlite)
+library(cronR)
+#library(taskscheduleR)
+```
+
 # Extracting and Analyzing the New York Times Movie Reviews Data
 
 ## Introduction
 As the movie landscape continues to evolve, The New York Times movie reviews continue to offer insightful commentary, providing audiences with a nuanced perspective on the ever-changing and dynamic world of cinema. In order to get a deeper understanding of how the NYTimes is selecting what movies to review, what type of movie each of the staff critics review, and if there are patterns selecting which movies to be reviewed by whom, we decided to analyze all the movie reviews published in NYTimes from Januray 2018 until November 2023. In particular, we are trying to understand:  
   - Is there a pattern or a time-trend in the number of movies that the NYTimes reviews during this period?  
-  - Is any particular genre more likely to be reviewed by NYTimes? 
-  - Which critics are the most prolific?
+  - Is any particular genre more likely to be reviewed by NYTimes?  
+  - Which critics are the most prolific?  
   - Do particular reviewers/authors specialize in particular genres?  
   - What’s the distribution of IMDb ratings of the movies reviewed each author?  
   - Are "Critic's Picks" more likely to also receive higher ratings by the public?  
@@ -18,24 +34,75 @@ As the movie landscape continues to evolve, The New York Times movie reviews con
 ## Inital Exploration
 They journey to land on this topic was a windy one. Initially, we wanted to work with a social media API where we would grab all the comments on a specific movie most and run sentiment analysis to get an idea about how the movie is received by the public. We also had a detour in our thinking in mid-October and wanted to shift our project to check the state of democracy in the USA by downloading the comments on all posts by the POTUS and Bernie Sanders accounts to see the prevalence of the calls for a ceasefire in Gaza knowing that those comments went on deaf ears. All those ideas proved to be unfit for the scope of this project due to the difficulty in extracting comments on a certain posts in the APIs of the social media platforms we wanted to use.
 
-The final pivot we did was to go back to our initial idea of movie reviews and use the NYTimes' API.
+The final pivot we did was to go back to our initial idea of movie reviews and use the NYTimes' API. While working with the NYTimes API, we also attempted to pull Covid related articles but decided not to use the data in our final analysis.
 
 ## Difficulties with the NYTimes API
-### Xunqing --> talk about the deprecated api, call limits, the parameters, etc
+The NYTimes API presents a steep learning curve on how it operates. A good understanding of the documentation is required to navigate and extract the desired information efficiently. Throughout the process, we have encountered many difficulties, such as function deprecation, code errors, data consistency, etc.  
+
+### API Limitations:
+The NYTimes API has a daily rate limit of 500 hits per API key, each hit only gets 10 articles, and it also limits users from hitting the API too frequently. An code 400 error message will appear once we reached 200 consecutive request to access the API, sometimes even earlier. These limitations impacted the real time data retrieval and require careful consideration of the API usage patterns. On top of the rate limits, NYTimes also deprecated its movie reviews API, which made our data collection process even more time consuming. We used its article search API as a workaround. The issue with the article search API is that in order to get all the movie reviews, we can't limit the articles to only movie reviews. A lot of other articles were included in our pull and only 28% of the article were actually movie reviews.  
+
+### Code Errors:
+Working with API is never easy, in addition to the API limitation, we also experienced some errors in our codes, which further complicates our data collection process. Although NYTimes deprecated its Movie Review API, it offered a sample url structure to access the movie review from the Article Search API.  
+  - https://api.nytimes.com/svc/search/v2/articlesearch.json?fq=section_name%3A"Movies" AND
+  type_of_material%3A"Review"&sort=newest&page=0&api-key{your-key}  
+The first issue we encountered with this URL is with colon. NYTimes used the HTML encoding "%3A" instead of an actual colon in the provided URL. This encoding did not work for us and we kept accessing empty pages. The second issue with this URL is NYTimes added a "page=0" parameter, which limited the access to only the first 10 articles. We did not notice this in our initial API pull, as an result, our initial data only contained 10 unique articles in each data file.
 
 ### Quality, consistency, and insufficient information:
 Another issue we faced with the NYTimes API was the lack of information and consistency in the data provided. For instance, data on the movie name and movie type are provided in a list of lists. Not all reviews had these two pieces of information, and in the cases where the information is provided, it is not arranged in a way that lends itself to systematic extraction. For movie names, we had to supplement the list data with information from the URL in cases where the list was missing that information. For the type of movie, the only categorizations that were consistently provided were whether the movie is a film, a documentary, or an animated film. No consistent information is provided for the genre of the movie.
 
 From the NYTimes API data, we ended up extracting and using movie name, movie type, whether or not it was a critic's pick, the author of the review, and the date of publishing the review.
 
-## Supplementing the NYTimes data with IMDb information
-Besides its paid API, IMDb has free datasets that are available for use for non-commercial purposes. We utilize this data to supplement the NYTimes information. In particular, this data adds information on the genre of the movie, the IMDb average rating, and the number of ratings.
 
-## Data Collection
-### Xunqing --> talk about how we got the info from the NYT api and how we saved it for later analysis; 
+## Data Collection  
 
-### unqing --> Also talk about the chunk of code you created to get the IMDb data directly from the web and about the two datasets (title basics and title reviews)
+### NYTimes
+In order to access the NYTimes API, we first created a developer account with NYTimes to access a API key. The code below sets a stage for all the necessary parameters. The dates are coded automatically referring to past 7 days based on system time for any ongoing, continuous data pull. We hard coded the dates for any massive hitorical data pull. 
+```{r, message=FALSE}
 
+NYTIMES_KEYm <- "hCt4EAjrvjsBswpEqfukn2lLVCkpCgCG" ###need individual access
+movie = "Movies" ## section_name
+review = "Review" ## type_of_content
+begin_date1 = as.POSIXlt(Sys.time()-86400*7)
+begin_date2 = paste0(substr(begin_date1,0,4),substr(begin_date1,6,7),substr(begin_date1,9,10))
+end_date1 = as.POSIXlt(Sys.time()-86400)
+end_date2 = paste0(substr(end_date1,0,4),substr(end_date1,6,7),substr(end_date1,9,10))
+
+```
+
+After coding all the parameters, we used paste0() to combine all of them to form a URL to access the API data.
+```{r}
+baseurl1 <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?fq=section_name:",movie,
+                  "AND type_of_material:",review, "&sort=newest",
+                  "&begin_date=",begin_date2,"&end_date=",end_date2,
+                  "&facet_filter=true&api-key=",NYTIMES_KEYm)
+baseurl1
+```
+
+With this base url, we were able to access the data from the NYTimes API, divided the total article number by 10 to get the maximum pages we need to pull within the time frame we set. Then, we created an empty list vector to store all the data from the API. Since each time we can only access 1 page or 10 articles, a for loop is used to hit the API and store data over pages. The for loop was the most time consuming part of the code. After multiple tests to minimized potential error, we had to change the wait time between each API hit from our initial 5 seconds to 12 second. 
+```{r, message=FALSE}
+initialQuery <- fromJSON(baseurl1)
+maxPages <- round((initialQuery$response$meta$hits[1] / 10)-1) 
+
+pages_2023 <- vector("list",length=maxPages)
+
+for(i in 0:maxPages){
+  nytSearch <- fromJSON(paste0(baseurl1, "&page=", i), flatten = TRUE) %>% data.frame() 
+  pages_2023[[i+1]] <- nytSearch 
+  Sys.sleep(12) 
+}
+```
+
+Lastly, we store the data as .Rdata file for future analysis. 
+```{r, message=FALSE}
+MovieFile <- rbind_pages(pages_2023)
+save(MovieFile,file=paste0(end_date2,"Movie.Rdata"))
+```
+
+Throughout the process, we learned that accessing recent data is a lot easier than historical data due to volumes. For historical data, we had to carefully check the date range to make sure each time we ran the for loop, it's within 200 pages to avoid potential errors.
+
+### IMDb
+Besides its paid API, IMDb has free datasets that are available for use for non-commercial purposes. We utilize this data to supplement the NYTimes information. In particular, this data adds information on the genre of the movie, the IMDb average rating, and the number of ratings. The code below basically creates a function to go to the IMDb file download page, get the TSV files, then store the dataset into R Global Enviroment for analysis.
 ```{r}
 
 imdbTSVfiles <- function(fileName){
@@ -56,22 +123,25 @@ imdbTSVfiles("title.basics")
 imdbTSVfiles("title.ratings")
 ```
 
+### Automation of the data pipeline
+In an effort to access all the data in a more sustainable way for long term purpose, we also tried to automate the data pull with cronR for Mac and taskscheduleR for Windows. Unfortunately, both attempts were not successful for NYTimes due to issues with our laptops' security system. We did successfully automate the IMDb data pull as we save the data to R directly instead of as a separate file to our local disk. 
+```{r}
+#This code chunk is for display only. We don't want to actually schedule any task.
+
+##mac
+#cmd1 = cron_rscript("~/StatConsultation/MovieAPI.R")
+#cron_add(cmd1, "daily", at="6AM")
+
+#cmd2 = cron_rscript("~/StatConsultation/imbddata.R")
+#cron_add(cmd1, "daily", at="3PM")
+
+##Window
+#taskschedulerAddin()
+```
+
 
 ### NYTimes data manipulation steps
 1. All the files that were extracted from the API and saved as .R files were loaded and appended using the following code:
-
-```{r, message=FALSE}
-library(tidyverse)
-library(lubridate)
-library(stringr)
-library(zoo)
-library(readr)
-library(tidyverse)
-library(splitstackshape)
-library(stringi)
-library(tm)
-library(ggplot2)
-```
 
 
 ```{r}
