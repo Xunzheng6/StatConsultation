@@ -97,7 +97,7 @@ merged_unique <- merged %>% distinct(response.docs.snippet, .keep_all = TRUE)
 
 # Add author name (removing "By")
 stopwords = c("By")
-merged_unique$author <- merged_unique$response.docs.byline.original<-gsub("By","",as.character(merged_unique$response.docs.byline.original))
+merged_unique$author <- gsub("By","",as.character(merged_unique$response.docs.byline.original))
 
 # clean critic's pick column
 merged_unique$criticpick <- ifelse(is.na(merged_unique$response.docs.headline.kicker),0,1)
