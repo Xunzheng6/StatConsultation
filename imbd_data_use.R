@@ -1,31 +1,3 @@
-# getting other movie information from IMDB
-
-library(readr)
-library(tidyverse)
-library(splitstackshape)
-library(stringi)
-library(tm)
-
-titles <- title.basics %>% 
-  filter(startYear>2016,
-         titleType=="movie"|titleType=="tvMovie")
-
-
-ratings <- title.ratings
-joined <- left_join(titles,ratings, by="tconst") %>% 
-  rename(movie_name = primaryTitle,
-         release_year=startYear) %>% 
-  mutate(release_year=as.numeric(release_year))
-
-# Clean up movie names ; replace dashes with spaces ; remove white space ; lower case all for movie names
-joined$movie_name <-str_replace(joined$movie_name, " \\s*\\([^\\)]+\\)", "")
-joined$movie_name <-str_replace_all(joined$movie_name,'-',' ')
-joined$movie_name <- trimws(joined$movie_name)
-joined$movie_name <- tolower(joined$movie_name)
-
-joined$movie_name <-str_replace_all(joined$movie_name,':','')
-joined$movie_name <-str_replace_all(joined$movie_name,'&','and')
-
 
 
 withratings <- left_join(unique, joined, by="movie_name")
