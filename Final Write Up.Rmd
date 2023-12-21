@@ -514,3 +514,4 @@ The plot shows that indeed, the distribution of IMDb ratings for the critic's pi
 
 
 ## Conclusion
+By doing this project, we had a chance to work with an API, collect data from the real world, clean these collected data, and then use it for analysis. We learned that data from the real world is very messy. As systematic as we want it to be, we have encountered many variances in data recording, likely a result of human errors. With the data collected, there are many other things we can do with it but haven't have a chance. A next step we have for self exploration is to fit the data through a sentiment analysis.
